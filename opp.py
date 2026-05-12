@@ -3,7 +3,6 @@ import smtplib
 from email.mime.text import MIMEText
 
 # -----------------------------------------------------
-# १. Mitradnya Publication - Email Setup
 # -----------------------------------------------------
 # (येथे तुमचा खरा ईमेल आणि Gmail App Password टाका)
 TEACHER_EMAIL = "mukeshamrutkar.shm@gmail.com" 
