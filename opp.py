@@ -3,8 +3,6 @@ import smtplib
 from email.mime.text import MIMEText
 
 # -----------------------------------------------------
-# -----------------------------------------------------
-# (येथे तुमचा खरा ईमेल आणि Gmail App Password टाका)
 TEACHER_EMAIL = "mukeshamrutkar.shm@gmail.com" 
 EMAIL_PASSWORD = "Mukesh@9991"   
 
@@ -25,8 +23,6 @@ def send_score_to_teacher(student_name, score, total):
     except Exception as e:
         return False
 
-# -----------------------------------------------------
-# २. सर्व ५० प्रश्नांचा डेटाबेस (Python List of Dictionaries)
 # -----------------------------------------------------
 quiz_data = [
     {"q": "1. The Indian Partnership Act was passed in the year:", "options": ["Select", "1923", "1932", "1956", "2013"], "ans": "1932"},
@@ -82,11 +78,9 @@ quiz_data = [
 ]
 
 # -----------------------------------------------------
-# ३. वेबसाईटचे डिझाईन आणि सिस्टीम
-# -----------------------------------------------------
 st.set_page_config(page_title="Mitradnya Online Exam", page_icon="📝")
 
-st.title("📚 Mitradnya Publication - Online Exam")
+st.title("📚 Asst. Prof. Mukesh Amrutkar's - Online Exam")
 st.subheader("Subject: Book-Keeping & Accountancy")
 st.markdown("**Topic: Partnership Final Accounts (50 Marks)**")
 st.markdown("---")
@@ -94,7 +88,6 @@ st.markdown("---")
 student_name = st.text_input("👤 Enter Your Full Name:")
 st.markdown("---")
 
-# विद्यार्थ्यांची उत्तरे साठवण्यासाठी एक रिकामी यादी 
 user_answers = []
 
 # 'For Loop' वापरून सर्व ५० प्रश्न एकाच वेळी स्क्रीनवर आणण्याची पद्धत
