@@ -100,26 +100,17 @@ for index, item in enumerate(quiz_data):
 
 st.markdown("---")
 
-# सबमिट बटण आणि निकाल 
-if st.button("🚀 Submit Exam"):
-    if student_name == "":
-        student_division == "":
-        student_roll no. == "":
-        st.warning("⚠️ Please enter your name first!")
-        st.warning("⚠️ Please enter your division first")
-        st.warning("⚠️ Please enter your roll no first!")
+v
     else:
         score = 0
         total_questions = len(quiz_data)
         
-        # उत्तरे तपासण्याची सिस्टीम
         for i in range(total_questions):
             if user_answers[i] == quiz_data[i]['ans']:
                 score += 1
                 
         st.success(f"🎉 Exam Submitted! Dear {student_name}, your Score is {score}/{total_questions}")
         
-        # शिक्षकाला ईमेल पाठवणे
         with st.spinner("Sending report to Mukesh Sir..."):
             email_sent = send_score_to_teacher(student_name, score, total_questions)
             
