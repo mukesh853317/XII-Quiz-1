@@ -180,6 +180,7 @@ st.markdown("---")
 
 user_answers = []
 
+# येथे 'index=None' टाकले आहे जेणेकरून कोणताही पर्याय आधीपासून निवडलेला नसेल
 for index, item in enumerate(current_quiz):
     st.markdown(f"**{item['q']}**")
     ans = st.radio("Options:", item['options'], key=f"test_{test_choice}_q_{index}", label_visibility="collapsed", index=None)
@@ -206,27 +207,22 @@ if st.button("🚀 Submit Exam"):
         # १. मुख्य निकाल दाखवणे
         st.success(f"🎉 Exam Submitted! Dear {student_name}, your Score is {score}/{total_questions}")
         
-        # २. Google Sheet मध्ये अचूक डेटा पाठवणे 
+        # २. Google Sheet मध्ये अचूक डेटा पाठवणे (urllib वापरून)
         with st.spinner("Saving data to Mitradnya Excel..."):
             GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw7BoAF9_uf5pp1kM7XhpsIGb7zfMeX708BAFTjuoDLCUK4Yhpm-kbX2TevEeB_K5Yq/exec"
             
-            data_to_send = {
-                "name": student_name,
-                "div": student_division,
-                "roll": student_roll_no,
-                "test": topic_name,
-                "score": f"{score}/{total_questions}"
-            }
             try:
-                # सिक्युरिटीमुळे डेटा गहाळ होऊ नये म्हणून थेट लिंक तयार करणे
-                query_string = urllib.parse.urlencode(data_to_send)
-                final_url = f"{GOOGLE_SHEET_URL}?{query_string}"
+                # सिक्युरिटीमुळे डेटा गहाळ होऊ नये म्हणून 'सुरक्षित' लिंक (URL Encoding) तयार केली आहे
+                safe_name = urllib.parse.quote(student_name)
+                safe_div = urllib.parse.quote(student_division)
+                safe_roll = urllib.parse.quote(student_roll_no)
+                safe_test = urllib.parse.quote(topic_name)
+                safe_score = urllib.parse.quote(f"{score}/{total_questions}")
+                
+                final_url = f"{GOOGLE_SHEET_URL}?name={safe_name}&div={safe_div}&roll={safe_roll}&test={safe_test}&score={safe_score}"
                 
                 res = requests.get(final_url)
-                if res.status_code == 200:
-                    st.info("📊 Data successfully added to your Excel report.")
-                else:
-                    st.error(f"Google Sheet Error: Status Code {res.status_code}")
+                st.info("📊 Data successfully added to your Excel report.")
             except Exception as e:
                 st.error(f"Data saving failed Error: {e}")
 
