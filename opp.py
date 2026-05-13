@@ -13,8 +13,7 @@ try:
     EMAIL_PASSWORD = st.secrets["EMAIL_PASSWORD"]
 except:
     EMAIL_PASSWORD = "" 
-
-TEACHER_NAME = "Mukesh Sir"
+    TEACHER_NAME = "Mukesh Sir"
 
 @st.cache_data
 def load_data():
@@ -81,7 +80,7 @@ if df is not None:
     end_idx = start_idx + chunk_size
     current_quiz_df = chapter_questions.iloc[start_idx:end_idx]
     
-    st.title("📚 Online Examination Portal")
+    st.title("📚 Mukesh Sir's Online Exam 📚")
     st.subheader(f"Topic: {selected_chapter}")
     st.write(f"**Test: {selected_part} (20 Marks)**")
     
