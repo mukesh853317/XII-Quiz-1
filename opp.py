@@ -241,7 +241,7 @@ if st.button("🚀 Submit Exam"):
         
         # ४. ईमेल पाठवण्याची सिस्टीम
         with st.spinner("Saving Result..."):
-            send_score_to_teacher(student_name, student_division, student_roll_no, score, total_questions, topic_name, detailed_report)
+            send_score_to_teacher(student_name, student_division, student_roll_no, score, total_questions, topic_name)
             
             if student_email != "":
                 try:
