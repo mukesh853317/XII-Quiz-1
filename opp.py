@@ -137,7 +137,7 @@ if df is not None:
             
             # Google Sheet Update
             with st.spinner("Saving data to Excel..."):
-                GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw7BoAF9_uf5pp1kM7XhpsIGb7zfMeX708BAFTjuoDLCUK4Yhpm-kbX2TevEeB_K5Yq/exec"
+                GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzucsekDDlyax6P8ZUUZgSWYjX55P4n6jRKM6YzZe35wxQ0D5ldPLmTcYfkCMJOLlTV/exec"
                 safe_name = urllib.parse.quote(str(student_name))
                 safe_div = urllib.parse.quote(str(student_div))
                 safe_roll = urllib.parse.quote(str(student_roll))
