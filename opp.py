@@ -8,7 +8,7 @@ import random
 import streamlit.components.v1 as components
 
 # -----------------------------------------------------
-# १. Mitradnya Publication - Setup
+# 1. Mitradnya Publication - Setup
 # -----------------------------------------------------
 TEACHER_EMAIL = "vidyarthi.mitradnyapublications@gmail.com" 
 try:
@@ -56,27 +56,34 @@ def send_detailed_email(receiver_email, student_name, div, roll, score, total, c
     except: return False
 
 # -----------------------------------------------------
-# २. वेबसाईट इंटरफेस
+# 2. Website Interface & Session State Initialization
 # -----------------------------------------------------
 st.set_page_config(page_title="Mukesh Sir's Online Exam", page_icon="📝")
-st.sidebar.title("📚 Mitradnya Publication's Mukesh Sir's Online Test Series")
+st.sidebar.title("📚 Mitradnya Publication's Online Test Series")
+
+# Initialize Session State for Test Locking
+if 'test_status' not in st.session_state:
+    st.session_state.test_status = 'not_started' # Options: 'not_started', 'in_progress', 'submitted'
 
 if df is not None:
+    # Disable sidebar selection if test is active to prevent cheating/changing chapters
+    sidebar_disabled = st.session_state.test_status != 'not_started'
+    
     chapters = df['No'].unique()
-    selected_chapter = st.sidebar.selectbox("1. Select Chapter:", chapters)
+    selected_chapter = st.sidebar.selectbox("1. Select Chapter:", chapters, disabled=sidebar_disabled)
     
     chapter_questions = df[df['No'] == selected_chapter]
     total_q = len(chapter_questions)
     
     st.sidebar.markdown("---")
     
-    # २०-२० प्रश्नांचे भाग
+    # 20-20 Question Chunks
     chunk_size = 20
     test_parts = []
     for i in range(0, total_q, chunk_size):
         test_parts.append(f"Test {i//chunk_size + 1}")
         
-    selected_part = st.sidebar.radio("2. Select Test Part:", test_parts)
+    selected_part = st.sidebar.radio("2. Select Test Part:", test_parts, disabled=sidebar_disabled)
     
     part_index = test_parts.index(selected_part)
     start_idx = part_index * chunk_size
@@ -87,21 +94,34 @@ if df is not None:
     st.subheader(f"Topic: {selected_chapter}")
     st.write(f"**{selected_part} (20 Marks / 20 Minutes)**")
     
-    # --- विद्यार्थ्यांची माहिती ---
-    st.info("⚠️ Instructions: Fill in your information first and then click on 'Start Exam'. Only then will your time start.")
-    student_name = st.text_input("👤 Full Name:")
-    student_div = st.text_input("🏫 Division (A/B/C):")
-    student_roll = st.text_input("🔢 Roll No:")
-    student_email = st.text_input("📧 Email ID:")
+    # --- Student Information (Locks when test starts) ---
+    if st.session_state.test_status == 'not_started':
+        st.info("⚠️ Instruction: Please fill in your details first and click 'Start Test'. The timer will begin immediately.")
+        
+    student_name = st.text_input("👤 Full Name:", disabled=sidebar_disabled)
+    student_div = st.text_input("🏫 Division (A/B/C):", disabled=sidebar_disabled)
+    student_roll = st.text_input("🔢 Roll No:", disabled=sidebar_disabled)
+    student_email = st.text_input("📧 Email ID:", disabled=sidebar_disabled)
     st.markdown("---")
     
-    # --- Start Test Button & Timer ---
-    start_test = st.checkbox("🟢 Start Test")
-    
-    if start_test:
+    # =======================================================
+    # STATE 1: Test Not Started
+    # =======================================================
+    if st.session_state.test_status == 'not_started':
+        if st.button("🟢 Start Test"):
+            if student_name and student_div and student_roll:
+                st.session_state.test_status = 'in_progress'
+                st.rerun() # Reloads page to lock inputs and show questions
+            else:
+                st.warning("⚠️ Please fill in your Full Name, Division, and Roll No to start the test.")
+
+    # =======================================================
+    # STATE 2: Test In Progress
+    # =======================================================
+    elif st.session_state.test_status == 'in_progress':
         test_id = f"{selected_chapter}_{selected_part}".replace(" ", "_")
         
-        # आकर्षक टायमर (HTML/JS)
+        # English Timer (HTML/JS)
         timer_code = f"""
         <div style="background-color:#1B4F72; color:white; padding:10px; border-radius:8px; text-align:center; font-size:22px; font-weight:bold; font-family:sans-serif; border: 2px solid #AED6F1; box-shadow: 2px 2px 5px grey;">
             <span id="time">Loading Timer...</span>
@@ -122,12 +142,12 @@ if df is not None:
                 
                 if (distance <= 0) {{
                     clearInterval(timerId);
-                    elem.innerHTML = "⚠️ Time Up! Please Submit.";
+                    elem.innerHTML = "⚠️ Time Up! Please submit your exam immediately.";
                     elem.parentElement.style.backgroundColor = "#E74C3C";
                 }} else {{
                     var m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                     var s = Math.floor((distance % (1000 * 60)) / 1000);
-                    elem.innerHTML = "⏱️ Time: " + m + " M " + s + " S ";
+                    elem.innerHTML = "⏱️ Time Remaining: " + m + " m " + s + " s";
                 }}
             }}, 1000);
         </script>
@@ -136,20 +156,19 @@ if df is not None:
         
         user_answers = []
         for idx, (i, row) in enumerate(current_quiz_df.iterrows(), 1):
-            st.write(f"**Q: {idx}. {row['Question']}**")
+            st.write(f"**Q{idx}. 🔹 {row['Question']}**")
             
             raw_options = [str(row['Option A']), str(row['Option B']), str(row['Option C']), str(row['Option D'])]
             
-            # --- Duplicate Options Fix  ---
+            # --- Duplicate Options Fix ---
             unique_options = []
             for opt in raw_options:
                 while opt in unique_options:
-                    opt += " "  # Duplicate असल्यास एक space वाढवणे
+                    opt += " "  
                 unique_options.append(opt)
-            
             options = unique_options
             
-            # --- पर्याय शफल (Shuffle) ---
+            # --- Shuffle Options ---
             random.seed(i)
             random.shuffle(options)
             random.seed()
@@ -159,11 +178,13 @@ if df is not None:
             st.write("")
 
         if st.button("🚀 Submit Exam"):
-            if student_name and student_div and student_roll and None not in user_answers:
+            if None not in user_answers:
                 score = 0
                 detailed_report_text = ""
                 correct_answers = current_quiz_df['Correct Answer (Full Text)'].astype(str).str.strip().values
+                results_list = []
                 
+                # Check answers
                 for idx, (i, row) in enumerate(current_quiz_df.iterrows()):
                     user_ans = str(user_answers[idx]).strip()
                     correct_ans = str(correct_answers[idx]).strip()
@@ -171,18 +192,16 @@ if df is not None:
                     if user_ans == correct_ans:
                         score += 1
                         status = "✅ Correct"
+                        is_correct = True
                     else:
                         status = f"❌ Wrong (Correct: {correct_ans})"
+                        is_correct = False
+                        
                     detailed_report_text += f"Q: {row['Question']}\nYour Ans: {user_ans}\nStatus: {status}\n\n"
+                    results_list.append({'q': row['Question'], 'user_ans': user_ans, 'correct_ans': correct_ans, 'is_correct': is_correct})
                 
-                st.success(f"🎉 Result: {score}/{len(current_quiz_df)}")
-                
-                # टायमर क्लिअर करणे (जेणेकरून विद्यार्थी पुन्हा टेस्ट देऊ शकेल)
-                components.html(f"<script>sessionStorage.removeItem('examEndTime_{test_id}');</script>", height=0)
-                
-                # Google Sheet Update
+                # Save Data processing logic safely
                 with st.spinner("Saving data to Excel..."):
-                    # तुमची दिलेली नवीन लिंक
                     GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzucsekDDlyax6P8ZUUZgSWYjX55P4n6jRKM6YzZe35wxQ0D5ldPLmTcYfkCMJOLlTV/exec"
                     safe_name = urllib.parse.quote(str(student_name))
                     safe_div = urllib.parse.quote(str(student_div))
@@ -194,26 +213,58 @@ if df is not None:
                     
                     try:
                         res = requests.get(final_url)
-                        if res.status_code == 200:
-                            st.info("📊 तुमचा निकाल Excel मध्ये जतन झाला आहे.")
-                        else:
-                            st.error("⚠️ Excel मध्ये सेव्ह करताना अडचण आली.")
-                    except Exception as e:
-                        st.error(f"⚠️ Excel Connection Error: {e}")
+                        sheet_success = (res.status_code == 200)
+                    except Exception:
+                        sheet_success = False
                 
                 # Send Emails
                 send_detailed_email(TEACHER_EMAIL, student_name, student_div, student_roll, score, len(current_quiz_df), selected_chapter, selected_part, detailed_report_text, True)
                 
+                email_sent = False
                 if student_email:
-                    send_detailed_email(student_email, student_name, student_div, student_roll, score, len(current_quiz_df), selected_chapter, selected_part, detailed_report_text, False)
-                    st.info(f"📧 Detailed report sent to {student_email}")
+                    email_sent = send_detailed_email(student_email, student_name, student_div, student_roll, score, len(current_quiz_df), selected_chapter, selected_part, detailed_report_text, False)
                 
-                st.markdown("---")
-                st.markdown("### 📊 Detailed Performance:")
-                for idx, (i, row) in enumerate(current_quiz_df.reset_index().iterrows()):
-                    if str(user_answers[idx]).strip() == correct_answers[idx]:
-                        st.success(f"Q: {row['Question']}\n\n✅ Your Ans: {user_answers[idx]}")
-                    else:
-                        st.error(f"Q: {row['Question']}\n\n❌ Your Ans: {user_answers[idx]}\n\n🎯 Correct: {correct_answers[idx]}")
+                # Store results in session state to show on the next page securely
+                st.session_state.score = score
+                st.session_state.total_questions = len(current_quiz_df)
+                st.session_state.results_list = results_list
+                st.session_state.sheet_success = sheet_success
+                st.session_state.email_sent = email_sent
+                st.session_state.student_email = student_email
+                
+                st.session_state.test_status = 'submitted'
+                st.rerun() # Move to Result Page
             else:
-                st.warning("⚠️ Please fill all details and answer all questions.")
+                st.warning("⚠️ Please answer all questions before submitting.")
+
+    # =======================================================
+    # STATE 3: Test Submitted (Results Page)
+    # =======================================================
+    elif st.session_state.test_status == 'submitted':
+        # Remove the timer token from browser
+        test_id = f"{selected_chapter}_{selected_part}".replace(" ", "_")
+        components.html(f"<script>sessionStorage.removeItem('examEndTime_{test_id}');</script>", height=0)
+        
+        st.success(f"🎉 Result: {st.session_state.score}/{st.session_state.total_questions}")
+        
+        if st.session_state.sheet_success:
+            st.info("📊 Your result has been successfully saved in Excel.")
+        else:
+            st.error("⚠️ Error occurred while saving to Excel.")
+            
+        if st.session_state.student_email and st.session_state.email_sent:
+            st.info(f"📧 Detailed report sent to {st.session_state.student_email}")
+            
+        st.markdown("---")
+        st.markdown("### 📊 Detailed Performance:")
+        
+        for res in st.session_state.results_list:
+            if res['is_correct']:
+                st.success(f"Q: {res['q']}\n\n✅ Your Ans: {res['user_ans']}")
+            else:
+                st.error(f"Q: {res['q']}\n\n❌ Your Ans: {res['user_ans']}\n\n🎯 Correct: {res['correct_ans']}")
+        
+        st.markdown("---")
+        if st.button("🔄 Take Another Test"):
+            st.session_state.test_status = 'not_started'
+            st.rerun()
