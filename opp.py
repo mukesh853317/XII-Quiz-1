@@ -9,7 +9,7 @@ TEACHER_EMAIL = "mukeshamrutkar.shm@gmail.com"
 EMAIL_PASSWORD = "gnjf jcxf oorg spcr"   
 
 def send_score_to_teacher(student_name, div, roll, score, total):
-    msg_content = f"📚 Mitradnya Publication Alert!\n\nStudent Name: {student_name}\nDivision: {div}\nRoll No: {roll}\nTopic: Partnership Final Accounts\nScore: {score}/{total}"
+    msg_content = f"📚 Mitradnya Publication's Result Alert!\n\nStudent Name: {student_name}\nDivision: {div}\nRoll No: {roll}\nTopic: Partnership Final Accounts\nScore: {score}/{total}"
     msg = MIMEText(msg_content)
     msg['Subject'] = f"New Quiz Result: {student_name} ({div}-{roll}) scored {score}/{total}"
     msg['From'] = TEACHER_EMAIL
