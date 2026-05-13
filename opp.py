@@ -94,7 +94,7 @@ if df is not None:
     
     user_answers = []
     for idx, (i, row) in enumerate(current_quiz_df.iterrows(), 1):
-        st.write(f"**Q{idx}. 🔹 {row['Question']}**")
+        st.write(f"**Q: {idx}. {row['Question']}**")
         
         raw_options = [str(row['Option A']), str(row['Option B']), str(row['Option C']), str(row['Option D'])]
         
