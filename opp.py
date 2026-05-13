@@ -104,7 +104,7 @@ if df is not None:
         # आकर्षक टायमर (HTML/JS)
         timer_code = f"""
         <div style="background-color:#1B4F72; color:white; padding:10px; border-radius:8px; text-align:center; font-size:22px; font-weight:bold; font-family:sans-serif; border: 2px solid #AED6F1; box-shadow: 2px 2px 5px grey;">
-            <span id="time">लोड होत आहे...</span>
+            <span id="time">Loading Timer...</span>
         </div>
         <script>
             var testId = "{test_id}";
@@ -127,7 +127,7 @@ if df is not None:
                 }} else {{
                     var m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                     var s = Math.floor((distance % (1000 * 60)) / 1000);
-                    elem.innerHTML = "⏱️ Time: " + m + "M" + s + "S";
+                    elem.innerHTML = "⏱️ Time: " + m + " M " + s + " S ";
                 }}
             }}, 1000);
         </script>
