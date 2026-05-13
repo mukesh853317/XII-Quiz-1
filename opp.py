@@ -213,10 +213,10 @@ if st.button("🚀 Submit Exam"):
             question_text = current_quiz[i]['q']
             
             if user_ans == correct_ans:
-                st.success(f"**{question_text}**\n\n✅ तुमचे उत्तर: {user_ans}")
+                st.success(f"**{question_text}**\n\n✅ Your Ans: {user_ans}")
                 report_text += f"{question_text}\n✅ Your Ans: {user_ans} (Correct)\n\n"
             else:
-                st.error(f"**{question_text}**\n\n❌ तुमचे उत्तर: {user_ans} \n\n🎯 योग्य उत्तर: {correct_ans}")
+                st.error(f"**{question_text}**\n\n❌ Your Ans: {user_ans} \n\n🎯 Correct Ans: {correct_ans}")
                 report_text += f"{question_text}\n❌ Your Ans: {user_ans} \n🎯 Correct Ans: {correct_ans}\n\n"
         
         # ३. ईमेल पाठवण्याची सिस्टीम
