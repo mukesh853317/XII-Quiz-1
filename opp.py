@@ -133,20 +133,21 @@ quiz_data = [
     {"q": "99. As per the Companies Act, 2013, what is the maximum number of partners allowed in a partnership firm?", "options": ["Select", "20", "50", "100", "Unlimited"], "ans": "50"},
     {"q": "100. 'Goodwill' is an example of which type of asset?", "options": ["Select", "Tangible Asset", "Intangible Asset", "Current Asset", "Fictitious Asset"], "ans": "Intangible Asset"}
 ]
-
 # -----------------------------------------------------
-# ३. वेबसाईटचे डिझाईन आणि सिस्टीम
+# ३. वेबसाईटचे डिझाईन आणि सिस्टीम (New Result System)
 # -----------------------------------------------------
-st.set_page_config(page_title="Mitradnya Online Exam", page_icon="📝")
+st.set_page_config(page_title="📚 Mitradnya Publication's - Online Exam", page_icon="📝")
 
 st.title("📚 Mitradnya Publication's - Online Exam")
 st.subheader("Subject: Book-Keeping & Accountancy")
 st.markdown("**Topic: Partnership Final Accounts (100 Marks)**")
 
 st.markdown("---")
+# विद्यार्थ्याकडून माहिती घेणे (येथे ईमेलचा रकाना वाढवला आहे)
 student_name = st.text_input("👤 Enter Your Full Name:")
 student_division = st.text_input("🏫 Enter Your Division (e.g., A, B, C):")
 student_roll_no = st.text_input("🔢 Enter Your Roll No:")
+student_email = st.text_input("📧 Enter Your Email ID (निकाल मेलवर मिळवण्यासाठी):")
 st.markdown("---")
 
 user_answers = []
@@ -159,27 +160,59 @@ for index, item in enumerate(quiz_data):
 
 st.markdown("---")
 
+# सबमिट बटण आणि तपासणी
 if st.button("🚀 Submit Exam"):
-    if student_name == "":
-        st.warning("⚠️ Please enter your Name first!")
-    elif student_division == "":
-        st.warning("⚠️ Please enter your Division first!")
-    elif student_roll_no == "":
-        st.warning("⚠️ Please enter your Roll No first!")
+    if student_name == "" or student_division == "" or student_roll_no == "":
+        st.warning("⚠️ Please enter your Name, Division, and Roll No first!")
     else:
         score = 0
         total_questions = len(quiz_data)
+        report_text = "" # ईमेलवर पाठवण्यासाठी रिपोर्टचा डबा
         
         for i in range(total_questions):
             if user_answers[i] == quiz_data[i]['ans']:
                 score += 1
                 
-        st.success(f"🎉 Exam Submitted! Dear {student_name} (Div: {student_division}, Roll No: {student_roll_no}), your Score is {score}/{total_questions}")
+        # १. मुख्य निकाल दाखवणे
+        st.success(f"🎉 Exam Submitted! Dear {student_name}, your Score is {score}/{total_questions}")
+        st.markdown("---")
+        st.markdown("### 📊 तुमचा सविस्तर निकाल (Detailed Report):")
         
-        with st.spinner("Sending report to Mukesh Sir..."):
-            email_sent = send_score_to_teacher(student_name, student_division, student_roll_no, score, total_questions)
+        # २. लाल आणि हिरव्या रंगात उत्तरे दाखवणे (On-Screen Analysis)
+        for i in range(total_questions):
+            user_ans = user_answers[i]
+            correct_ans = quiz_data[i]['ans']
+            question_text = quiz_data[i]['q']
             
-        if email_sent:
-            st.info("✅ Your official result has been emailed to the teacher.")
+            if user_ans == correct_ans:
+                # बरोबर असेल तर हिरवा बॉक्स (st.success)
+                st.success(f"**{question_text}**\n\n✅ तुमचे उत्तर: {user_ans}")
+                report_text += f"{question_text}\n✅ Your Ans: {user_ans} (Correct)\n\n"
+            else:
+                # चुकीचे असेल तर लाल बॉक्स (st.error) आणि बरोबर उत्तर दाखवणे
+                st.error(f"**{question_text}**\n\n❌ तुमचे उत्तर: {user_ans} \n\n🎯 योग्य उत्तर: {correct_ans}")
+                report_text += f"{question_text}\n❌ Your Ans: {user_ans} \n🎯 Correct Ans: {correct_ans}\n\n"
+        
+        # ३. ईमेल पाठवण्याची सिस्टीम
+        with st.spinner("निकाल सेव्ह होत आहे..."):
+            # शिक्षकाला मेल पाठवणे (आधीचा कोड)
+            send_score_to_teacher(student_name, student_division, student_roll_no, score, total_questions)
+            
+            # विद्यार्थ्याला मेल पाठवणे (जर त्याने मेल आयडी दिला असेल तर)
+            if student_email != "":
+                try:
+                    student_msg = MIMEText(f"Dear {student_name},\n\nYour Score for Partnership Final Accounts is {score}/{total_questions}.\n\nBelow is your detailed report:\n\n{report_text}\n\nKeep studying!\n- Mitradnya Publication")
+                    student_msg['Subject'] = f"Mitradnya Publication - Your Exam Result ({score}/{total_questions})"
+                    student_msg['From'] = TEACHER_EMAIL
+                    student_msg['To'] = student_email
+                    
+                    server = smtplib.SMTP('smtp.gmail.com', 587)
+                    server.starttls()
+                    server.login(TEACHER_EMAIL, EMAIL_PASSWORD)
+                    server.sendmail(TEACHER_EMAIL, student_email, student_msg.as_string())
+                    server.quit()
+                    st.info(f"📧 तुमचा सविस्तर निकाल {student_email} या ईमेलवर पाठवण्यात आला आहे.")
+                except Exception as e:
+                    st.error("ईमेल पाठवण्यात तांत्रिक अडचण आली.")
         else:
             st.error("❌ Note: Result calculated, but Email setup is not complete yet.")
