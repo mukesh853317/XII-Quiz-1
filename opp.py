@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 # -----------------------------------------------------
 TEACHER_EMAIL = "mukeshamrutkar.shm@gmail.com" 
 EMAIL_PASSWORD = "gnjf jcxf oorg spcr"   
+TEACHER_NAME = "Mukesh Arvind Amrutkar"
 
 def send_score_to_teacher(student_name, div, roll, score, total, test_name):
     msg_content = f"📚 Mitradnya Publication's Result Alert 📚!\n\nStudent Name: {student_name}\nDivision: {div}\nRoll No: {roll}\nTopic: Partnership Final Accounts\nTest: {test_name}\nScore: {score}/{total}"
@@ -225,9 +226,9 @@ if st.button("🚀 Submit Exam"):
             
             if student_email != "":
                 try:
-                    student_msg = MIMEText(f"Dear {student_name},\n\nYour Score for {topic_name} is {score}/{total_questions}.\n\nBelow is your detailed report:\n\n{report_text}\n\nKeep studying!\n- Mitradnya Publication")
+                    student_msg = MIMEText(f"Dear {student_name},\n\nYour Score for {topic_name} is {score}/{total_questions}.\n\nBelow is your detailed report:\n\n{report_text}\n\nKeep Studying!\n- Mukesh Arvind Amrutkar (9130103386)")
                     student_msg['Subject'] = f"Mitradnya Publication's - Your Exam Result ({score}/{total_questions})"
-                    student_msg['From'] = TEACHER_EMAIL
+                    student_msg['From'] = TEACHER_NAME
                     student_msg['To'] = student_email
                     
                     server = smtplib.SMTP('smtp.gmail.com', 587)
