@@ -149,11 +149,27 @@ if df is not None:
             st.success(f"🎉 Exam Submitted! Score: {score}/{len(current_quiz_df)}")
             
             # १. Google Sheet अपडेट (शिक्षक अहवालासाठी)
-            GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw7BoAF9_uf5pp1kM7XhpsIGb7zfMeX708BAFTjuoDLCUK4Yhpm-kbX2TevEeB_K5Yq/exec"
-            safe_name = urllib.parse.quote(student_name)
-            final_test_name = urllib.parse.quote(f"{selected_chapter}-{selected_part}")
-            requests.get(f"{GOOGLE_SHEET_URL}?name={safe_name}&div={student_div}&roll={student_roll}&test={final_test_name}&score={score}")
-            
+            with st.spinner("Saving data to Excel..."):
+                GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw7BoAF9_uf5pp1kM7XhpsIGb7zfMeX708BAFTjuoDLCUK4Yhpm-kbX2TevEeB_K5Yq/exec"
+                
+                # सुरक्षित URL तयार करणे (प्रत्येक शब्दातील Space हाताळण्यासाठी)
+                safe_name = urllib.parse.quote(str(student_name))
+                safe_div = urllib.parse.quote(str(student_div))
+                safe_roll = urllib.parse.quote(str(student_roll))
+                safe_test = urllib.parse.quote(f"{selected_chapter} - {selected_part}")
+                safe_score = urllib.parse.quote(str(score))
+                
+                final_url = f"{GOOGLE_SHEET_URL}?name={safe_name}&div={safe_div}&roll={safe_roll}&test={safe_test}&score={safe_score}"
+                
+                try:
+                    res = requests.get(final_url)
+                    if res.status_code == 200:
+                        st.info("📊 तुमचा निकाल Excel मध्ये जतन झाला आहे.")
+                    else:
+                        st.error("⚠️ Excel मध्ये सेव्ह करताना अडचण आली.")
+                except Exception as e:
+                    st.error(f"⚠️ Excel Connection Error: {e}")
+          
             # २. शिक्षकाला सविस्तर रिपोर्ट पाठवणे
             send_detailed_email(receiver_email=TEACHER_EMAIL, student_name=student_name, div=student_div, roll=student_roll, score=score, total=len(current_quiz_df), chapter=selected_chapter, test_name=selected_part, report_content=detailed_report_text, is_teacher=True)
             
