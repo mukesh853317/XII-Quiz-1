@@ -29,7 +29,7 @@ def send_score_to_teacher(student_name, div, roll, score, total, test_name):
         return False
 
 # -----------------------------------------------------
-# २. सर्व १०० प्रश्नांचा मास्टर डेटाबेस (Select काढलेले आहेत)
+# २. सर्व १०० प्रश्नांचा मास्टर डेटाबेस
 # -----------------------------------------------------
 quiz_data = [
     # --- Basic 50 Questions ---
@@ -175,12 +175,11 @@ st.markdown("---")
 student_name = st.text_input("👤 Enter Your Full Name:")
 student_division = st.text_input("🏫 Enter Your Division (e.g., A, B, C):")
 student_roll_no = st.text_input("🔢 Enter Your Roll No:")
-student_email = st.text_input("📧 Enter Your Email ID (To Get Result on Mail):") # <-- हा बदल केला आहे
+student_email = st.text_input("📧 Enter Your Email ID (To Get Result on Mail):") 
 st.markdown("---")
 
 user_answers = []
 
-# येथे 'index=None' टाकले आहे जेणेकरून कोणताही पर्याय आधीपासून निवडलेला नसेल
 for index, item in enumerate(current_quiz):
     st.markdown(f"**{item['q']}**")
     ans = st.radio("Options:", item['options'], key=f"test_{test_choice}_q_{index}", label_visibility="collapsed", index=None)
@@ -207,7 +206,7 @@ if st.button("🚀 Submit Exam"):
         # १. मुख्य निकाल दाखवणे
         st.success(f"🎉 Exam Submitted! Dear {student_name}, your Score is {score}/{total_questions}")
         
-        # २. Google Sheet मध्ये अचूक डेटा पाठवणे (urllib वापरून)
+        # २. Google Sheet मध्ये अचूक डेटा पाठवणे 
         with st.spinner("Saving data to Mitradnya Excel..."):
             GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw7BoAF9_uf5pp1kM7XhpsIGb7zfMeX708BAFTjuoDLCUK4Yhpm-kbX2TevEeB_K5Yq/exec"
             
@@ -219,14 +218,17 @@ if st.button("🚀 Submit Exam"):
                 "score": f"{score}/{total_questions}"
             }
             try:
-                # गुगलच्या सिक्युरिटीमुळे डेटा गहाळ होऊ नये म्हणून थेट लिंक तयार करणे
+                # सिक्युरिटीमुळे डेटा गहाळ होऊ नये म्हणून थेट लिंक तयार करणे
                 query_string = urllib.parse.urlencode(data_to_send)
                 final_url = f"{GOOGLE_SHEET_URL}?{query_string}"
                 
-                requests.get(final_url)
-                st.info("📊 Data successfully added to your Excel report.")
+                res = requests.get(final_url)
+                if res.status_code == 200:
+                    st.info("📊 Data successfully added to your Excel report.")
+                else:
+                    st.error(f"Google Sheet Error: Status Code {res.status_code}")
             except Exception as e:
-                st.error("Data saving failed, but email will be sent.")
+                st.error(f"Data saving failed Error: {e}")
 
         st.markdown("---")
         st.markdown("### 📊 तुमचा सविस्तर निकाल (Detailed Report):")
