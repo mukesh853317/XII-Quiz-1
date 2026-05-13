@@ -1,6 +1,6 @@
-import requests
 import streamlit as st
 import smtplib
+import requests
 from email.mime.text import MIMEText
 
 # -----------------------------------------------------
@@ -205,13 +205,10 @@ if st.button("🚀 Submit Exam"):
                 
         # १. मुख्य निकाल दाखवणे
         st.success(f"🎉 Exam Submitted! Dear {student_name}, your Score is {score}/{total_questions}")
-        st.markdown("---")
-        st.markdown("### 📊 Detailed Report 📊")
-
-        # २. १००% फ्री Google Sheet मध्ये डेटा पाठवणे (New Free Hack)
-        # -----------------------------------------------------
+        
+        # २. Google Sheet मध्ये डेटा पाठवणे (येथे तुमची लिंक अगदी बरोबर टाकली आहे)
         with st.spinner("Saving data to Mitradnya Excel..."):
-            GOOGLE_SHEET_URL = https://script.google.com/macros/s/AKfycbw7BoAF9_uf5pp1kM7XhpsIGb7zfMeX7O8BAFTjuoDLCUK4YHpm-kbX2TevEeB_K5Yq/exec "येथे_तुमची_कॉपी_केलेली_WEB_APP_URL_पेस्ट_करा"
+            GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw7BoAF9_uf5pp1kM7XhpsIGb7zfMeX708BAFTjuoDLCUK4Yhpm-kbX2TevEeB_K5Yq/exec"
             
             data_to_send = {
                 "name": student_name,
@@ -221,12 +218,10 @@ if st.button("🚀 Submit Exam"):
                 "score": f"{score}/{total_questions}"
             }
             try:
-                # हे गुगल शीटला डेटा पाठवते
                 requests.get(GOOGLE_SHEET_URL, params=data_to_send)
                 st.info("📊 Data successfully added to your Excel report.")
             except:
                 st.error("Data saving failed, but email will be sent.")
-        # -----------------------------------------------------
 
         st.markdown("---")
         st.markdown("### 📊 तुमचा सविस्तर निकाल (Detailed Report):")
