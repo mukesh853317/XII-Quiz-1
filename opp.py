@@ -113,8 +113,10 @@ if df is not None:
     st.markdown("---")
     
     user_answers = []
-    for i, row in current_quiz_df.iterrows():
-        st.write(f"**{row['Question']}**")
+    for idx, (i, row) in enumerate(current_quiz_df.iterrows(), 1):
+        # इथे आपण 'Q' आणि आपोआप येणारा नंबर जोडला आहे, सोबत एक छान चिन्ह दिले आहे
+        st.write(f"**Q{idx}. 🔹 {row['Question']}**")
+        
         options = [str(row['Option A']), str(row['Option B']), str(row['Option C']), str(row['Option D'])]
         ans = st.radio("Options:", options, key=f"q_{i}", index=None, label_visibility="collapsed")
         user_answers.append(ans)
