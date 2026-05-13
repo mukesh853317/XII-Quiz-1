@@ -149,7 +149,7 @@ test_choice = st.sidebar.radio("Choose a Test Part:", [
     "Test 4: Advanced Concepts (Q76-Q100)"
 ])
 st.sidebar.markdown("---")
-st.sidebar.info["Developed by Mukesh Sir (9130103386)"]
+st.sidebar.info("Developed by Mukesh Sir (9130103386)")
 
 if test_choice == "Test 1: Basics & Theory (Q1-Q25)":
     current_quiz = quiz_data[0:25]
