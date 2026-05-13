@@ -1,3 +1,4 @@
+import requests
 import streamlit as st
 import smtplib
 from email.mime.text import MIMEText
@@ -7,7 +8,7 @@ from email.mime.text import MIMEText
 # -----------------------------------------------------
 TEACHER_EMAIL = "vidyarthi.mitradnyapublications@gmail.com" 
 EMAIL_PASSWORD = "vhoc lltr ejwu qomk"   
-TEACHER_NAME = "Mukesh Arvind Amrutkar"
+TEACHER_NAME = "Mukesh Sir"
 
 def send_score_to_teacher(student_name, div, roll, score, total, test_name):
     msg_content = f"📚 Online Exam's Result Alert 📚!\n\nStudent Name: {student_name}\nDivision: {div}\nRoll No: {roll}\nTopic: Partnership Final Accounts\nTest: {test_name}\nScore: {score}/{total}"
@@ -192,7 +193,7 @@ if st.button("🚀 Submit Exam"):
     if student_name == "" or student_division == "" or student_roll_no == "":
         st.warning("⚠️ Please enter your Name, Division, and Roll No first!")
     elif None in user_answers:
-        st.warning("⚠️ Please answer all questions before submitting!") # जर एखादा प्रश्न सोडवला नसेल तर वॉर्निंग येईल
+        st.warning("⚠️ Please answer all questions before submitting!")
     else:
         score = 0
         total_questions = len(current_quiz)
@@ -206,8 +207,31 @@ if st.button("🚀 Submit Exam"):
         st.success(f"🎉 Exam Submitted! Dear {student_name}, your Score is {score}/{total_questions}")
         st.markdown("---")
         st.markdown("### 📊 Detailed Report 📊")
-        
-        # २. लाल आणि हिरव्या रंगात उत्तरे दाखवणे
+
+        # २. १००% फ्री Google Sheet मध्ये डेटा पाठवणे (New Free Hack)
+        # -----------------------------------------------------
+        with st.spinner("Saving data to Mitradnya Excel..."):
+            GOOGLE_SHEET_URL = https://script.google.com/macros/s/AKfycbw7BoAF9_uf5pp1kM7XhpsIGb7zfMeX7O8BAFTjuoDLCUK4YHpm-kbX2TevEeB_K5Yq/exec "येथे_तुमची_कॉपी_केलेली_WEB_APP_URL_पेस्ट_करा"
+            
+            data_to_send = {
+                "name": student_name,
+                "div": student_division,
+                "roll": student_roll_no,
+                "test": topic_name,
+                "score": f"{score}/{total_questions}"
+            }
+            try:
+                # हे गुगल शीटला डेटा पाठवते
+                requests.get(GOOGLE_SHEET_URL, params=data_to_send)
+                st.info("📊 Data successfully added to your Excel report.")
+            except:
+                st.error("Data saving failed, but email will be sent.")
+        # -----------------------------------------------------
+
+        st.markdown("---")
+        st.markdown("### 📊 तुमचा सविस्तर निकाल (Detailed Report):")
+       
+        # ३. लाल आणि हिरव्या रंगात उत्तरे दाखवणे
         for i in range(total_questions):
             user_ans = user_answers[i]
             correct_ans = current_quiz[i]['ans']
@@ -220,14 +244,14 @@ if st.button("🚀 Submit Exam"):
                 st.error(f"**{question_text}**\n\n❌ Your Ans: {user_ans} \n\n🎯 Correct Ans: {correct_ans}")
                 report_text += f"{question_text}\n❌ Your Ans: {user_ans} \n🎯 Correct Ans: {correct_ans}\n\n"
         
-        # ३. ईमेल पाठवण्याची सिस्टीम
+        # ४. ईमेल पाठवण्याची सिस्टीम
         with st.spinner("Saving Result..."):
-            send_score_to_teacher(student_name, student_division, student_roll_no, score, total_questions, topic_name)
+            send_score_to_teacher(student_name, student_division, student_roll_no, score, total_questions, topic_name, detailed_report)
             
             if student_email != "":
                 try:
                     student_msg = MIMEText(f"Dear {student_name},\n\nYour Score for {topic_name} is {score}/{total_questions}.\n\nBelow is your detailed report:\n\n{report_text}\n\nKeep Studying!\n- Mukesh Arvind Amrutkar (9130103386)")
-                    student_msg['Subject'] = f"Your Mitradnya Publications Online Exam Result ({score}/{total_questions})"
+                    student_msg['Subject'] = f"Your Online Exam Result (Mitradnya Publications) ({score}/{total_questions})"
                     student_msg['From'] = TEACHER_NAME
                     student_msg['To'] = student_email
                     
