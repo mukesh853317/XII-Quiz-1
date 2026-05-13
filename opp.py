@@ -8,10 +8,10 @@ from email.mime.text import MIMEText
 TEACHER_EMAIL = "mukeshamrutkar.shm@gmail.com" 
 EMAIL_PASSWORD = "gnjf jcxf oorg spcr"   
 
-def send_score_to_teacher(student_name, div, roll, score, total):
-    msg_content = f"📚 Mitradnya Publication's Result Alert!\n\nStudent Name: {student_name}\nDivision: {div}\nRoll No: {roll}\nTopic: Partnership Final Accounts\nScore: {score}/{total}"
+def send_score_to_teacher(student_name, div, roll, score, total, test_name):
+    msg_content = f"📚 Mitradnya Publication's Result Alert 📚!\n\nStudent Name: {student_name}\nDivision: {div}\nRoll No: {roll}\nTopic: Partnership Final Accounts\nTest: {test_name}\nScore: {score}/{total}"
     msg = MIMEText(msg_content)
-    msg['Subject'] = f"New Quiz Result: {student_name} ({div}-{roll}) scored {score}/{total}"
+    msg['Subject'] = f"New Quiz Result: {student_name} ({div}-{roll}) scored {score}/{total} in {test_name}"
     msg['From'] = TEACHER_EMAIL
     msg['To'] = TEACHER_EMAIL
 
@@ -26,7 +26,7 @@ def send_score_to_teacher(student_name, div, roll, score, total):
         return False
 
 # -----------------------------------------------------
-# २. सर्व १०० प्रश्नांचा डेटाबेस (Master List)
+# २. सर्व १०० प्रश्नांचा मास्टर डेटाबेस (Select काढलेले आहेत)
 # -----------------------------------------------------
 quiz_data = [
     # --- Basic 50 Questions ---
@@ -135,26 +135,52 @@ quiz_data = [
 ]
 
 # -----------------------------------------------------
-# ३. वेबसाईटचे डिझाईन आणि सिस्टीम (New Result System)
+# ३. वेबसाईटचे डिझाईन आणि मेनू बार (Menu Bar)
 # -----------------------------------------------------
 st.set_page_config(page_title="Mitradnya Publication's Online Exam", page_icon="📝")
 
+st.sidebar.title("📚 Mitradnya Publication's 📚")
+st.sidebar.markdown("---")
+st.sidebar.subheader("Select Your Exam:")
+test_choice = st.sidebar.radio("Choose a Test Part:", [
+    "Test 1: Basics & Theory (Q1-Q25)",
+    "Test 2: Trading vs P&L (Q26-Q50)",
+    "Test 3: Adjustments & Rules (Q51-Q75)",
+    "Test 4: Advanced Concepts (Q76-Q100)"
+])
+st.sidebar.markdown("---")
+st.sidebar.info("Developed by Mukesh Sir")
+
+if test_choice == "Test 1: Basics & Theory (Q1-Q25)":
+    current_quiz = quiz_data[0:25]
+    topic_name = "Part 1: Basics & Theory"
+elif test_choice == "Test 2: Trading vs P&L (Q26-Q50)":
+    current_quiz = quiz_data[25:50]
+    topic_name = "Part 2: Trading vs P&L Concepts"
+elif test_choice == "Test 3: Adjustments & Rules (Q51-Q75)":
+    current_quiz = quiz_data[50:75]
+    topic_name = "Part 3: Adjustments & Rules"
+else:
+    current_quiz = quiz_data[75:100]
+    topic_name = "Part 4: Advanced Concepts"
+
 st.title("📚 Mitradnya Publication's - Online Exam 📚")
 st.subheader("Subject: Book-Keeping & Accountancy")
-st.markdown("**Topic: Partnership Final Accounts (Simple to Advance) (100 Marks)**")
+st.markdown(f"**Topic: Partnership Final Accounts - {topic_name} (25 Marks)**")
 
 st.markdown("---")
 student_name = st.text_input("👤 Enter Your Full Name:")
 student_division = st.text_input("🏫 Enter Your Division (e.g., A, B, C):")
 student_roll_no = st.text_input("🔢 Enter Your Roll No:")
-student_email = st.text_input("📧 Enter Your Email ID (To Get Result on Your Mail):")
+student_email = st.text_input("📧 Enter Your Email ID (To Get Result on Mail):") # <-- हा बदल केला आहे
 st.markdown("---")
 
 user_answers = []
 
-for index, item in enumerate(quiz_data):
+# येथे 'index=None' टाकले आहे जेणेकरून कोणताही पर्याय आधीपासून निवडलेला नसेल
+for index, item in enumerate(current_quiz):
     st.markdown(f"**{item['q']}**")
-    ans = st.radio("Options:", item['options'], key=f"q_{index}", label_visibility="collapsed")
+    ans = st.radio("Options:", item['options'], key=f"test_{test_choice}_q_{index}", label_visibility="collapsed", index=None)
     user_answers.append(ans)
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -164,25 +190,27 @@ st.markdown("---")
 if st.button("🚀 Submit Exam"):
     if student_name == "" or student_division == "" or student_roll_no == "":
         st.warning("⚠️ Please enter your Name, Division, and Roll No first!")
+    elif None in user_answers:
+        st.warning("⚠️ Please answer all questions before submitting!") # जर एखादा प्रश्न सोडवला नसेल तर वॉर्निंग येईल
     else:
         score = 0
-        total_questions = len(quiz_data)
+        total_questions = len(current_quiz)
         report_text = "" 
         
         for i in range(total_questions):
-            if user_answers[i] == quiz_data[i]['ans']:
+            if user_answers[i] == current_quiz[i]['ans']:
                 score += 1
                 
         # १. मुख्य निकाल दाखवणे
         st.success(f"🎉 Exam Submitted! Dear {student_name}, your Score is {score}/{total_questions}")
         st.markdown("---")
-        st.markdown("### 📊 तुमचा सविस्तर निकाल (Detailed Report):")
+        st.markdown("### 📊 Detailed Report 📊")
         
-        # २. लाल आणि हिरव्या रंगात उत्तरे दाखवणे (On-Screen Analysis)
+        # २. लाल आणि हिरव्या रंगात उत्तरे दाखवणे
         for i in range(total_questions):
             user_ans = user_answers[i]
-            correct_ans = quiz_data[i]['ans']
-            question_text = quiz_data[i]['q']
+            correct_ans = current_quiz[i]['ans']
+            question_text = current_quiz[i]['q']
             
             if user_ans == correct_ans:
                 st.success(f"**{question_text}**\n\n✅ तुमचे उत्तर: {user_ans}")
@@ -192,12 +220,12 @@ if st.button("🚀 Submit Exam"):
                 report_text += f"{question_text}\n❌ Your Ans: {user_ans} \n🎯 Correct Ans: {correct_ans}\n\n"
         
         # ३. ईमेल पाठवण्याची सिस्टीम
-        with st.spinner("निकाल सेव्ह होत आहे..."):
-            send_score_to_teacher(student_name, student_division, student_roll_no, score, total_questions)
+        with st.spinner("Saving Result..."):
+            send_score_to_teacher(student_name, student_division, student_roll_no, score, total_questions, topic_name)
             
             if student_email != "":
                 try:
-                    student_msg = MIMEText(f"Dear {student_name},\n\nYour Score for Partnership Final Accounts is {score}/{total_questions}.\n\nBelow is your detailed report:\n\n{report_text}\n\nKeep studying!\n- Mitradnya Publication")
+                    student_msg = MIMEText(f"Dear {student_name},\n\nYour Score for {topic_name} is {score}/{total_questions}.\n\nBelow is your detailed report:\n\n{report_text}\n\nKeep studying!\n- Mitradnya Publication")
                     student_msg['Subject'] = f"Mitradnya Publication's - Your Exam Result ({score}/{total_questions})"
                     student_msg['From'] = TEACHER_EMAIL
                     student_msg['To'] = student_email
@@ -207,6 +235,6 @@ if st.button("🚀 Submit Exam"):
                     server.login(TEACHER_EMAIL, EMAIL_PASSWORD)
                     server.sendmail(TEACHER_EMAIL, student_email, student_msg.as_string())
                     server.quit()
-                    st.info(f"📧 तुमचा सविस्तर निकाल {student_email} या ईमेलवर पाठवण्यात आला आहे.")
+                    st.info(f"📧 Your Detail Report {student_email} mail on this id.")
                 except Exception as e:
                     st.error("ईमेल पाठवण्यात तांत्रिक अडचण आली.")
