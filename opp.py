@@ -30,7 +30,7 @@ def send_score_to_teacher(student_name, div, roll, score, total):
 # -----------------------------------------------------
 quiz_data = [
     # --- Basic 50 Questions ---
-    {"q": "1. The Indian Partnership Act was passed in the year:", "options": ["Select", "1923", "1932", "1956", "2013"], "ans": "1932"},
+    {"q": "1. The Indian Partnership Act was passed in the year:", "options": ["1923", "1932", "1956", "2013"], "ans": "1932"},
     {"q": "2. The liability of partners in a standard partnership firm is:", "options": ["Select", "Limited", "Unlimited", "Zero", "Joint only"], "ans": "Unlimited"},
     {"q": "3. The document containing the terms of the partnership agreement is called:", "options": ["Select", "Partnership Deed", "Prospectus", "Articles", "Memorandum"], "ans": "Partnership Deed"},
     {"q": "4. In the absence of a Partnership Deed, profits and losses are shared:", "options": ["Select", "In Capital Ratio", "In Time Ratio", "Equally", "As per work"], "ans": "Equally"},
