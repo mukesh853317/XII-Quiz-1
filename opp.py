@@ -147,7 +147,7 @@ st.markdown("---")
 student_name = st.text_input("👤 Enter Your Full Name:")
 student_division = st.text_input("🏫 Enter Your Division (e.g., A, B, C):")
 student_roll_no = st.text_input("🔢 Enter Your Roll No:")
-student_email = st.text_input("📧 Enter Your Email ID (निकाल मेलवर मिळवण्यासाठी):")
+student_email = st.text_input("📧 Enter Your Email ID (To Get Result on Your Mail):")
 st.markdown("---")
 
 user_answers = []
