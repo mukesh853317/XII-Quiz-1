@@ -139,7 +139,7 @@ quiz_data = [
 # -----------------------------------------------------
 st.set_page_config(page_title="Mitradnya Online Exam", page_icon="📝")
 
-st.title("📚 Mitradnya Publication - Online Exam")
+st.title("📚 Mitradnya Publication's - Online Exam")
 st.subheader("Subject: Book-Keeping & Accountancy")
 st.markdown("**Topic: Partnership Final Accounts (100 Marks)**")
 
