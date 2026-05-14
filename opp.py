@@ -220,12 +220,13 @@ if df is not None:
                     results_list.append({'q': row['Question'], 'user_ans': user_ans, 'correct_ans': correct_ans, 'is_correct': is_correct})
                 
                 with st.spinner("Saving data to Excel..."):
-                    GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzucsekDDlyax6P8ZUUZgSWYjX55P4n6jRKM6YzZe35wxQ0D5ldPLmTcYfkCMJOLlTV/exec"
+                    GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycby2Gp3N7-UWio1lL6YMl2upK1xULqtGTv9uH0SoKKiuO5nSamvdbwuA0dzshlG8fzq_/exec"
                     safe_name = urllib.parse.quote(str(student_name))
                     safe_div = urllib.parse.quote(str(student_div))
                     safe_roll = urllib.parse.quote(str(student_roll))
                     safe_test = urllib.parse.quote(f"{selected_chapter} - {selected_part}")
                     safe_score = urllib.parse.quote(str(score))
+                    safe_email = urllib.parse.quote(str(student_email))  # <-- ईमेल ऍड केला
                     
                     final_url = f"{GOOGLE_SHEET_URL}?name={safe_name}&div={safe_div}&roll={safe_roll}&test={safe_test}&score={safe_score}"
                     
