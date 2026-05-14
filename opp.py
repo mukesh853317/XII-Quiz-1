@@ -6,6 +6,7 @@ import urllib.parse
 from email.mime.text import MIMEText
 import random
 import streamlit.components.v1 as components
+import re  # Email तपासण्यासाठी
 
 # -----------------------------------------------------
 # 1. Mitradnya Publication - Setup
@@ -17,6 +18,9 @@ except:
     EMAIL_PASSWORD = "" 
 
 TEACHER_NAME = "Mukesh Sir"
+
+# === येथे तुमचा परीक्षेचा सिक्रेट पासवर्ड सेट करा ===
+SECRET_EXAM_PIN = "MIT2026" 
 
 @st.cache_data
 def load_data():
@@ -58,16 +62,15 @@ def send_detailed_email(receiver_email, student_name, div, roll, score, total, c
 # -----------------------------------------------------
 # 2. Website Interface & Session State Initialization
 # -----------------------------------------------------
-st.set_page_config(page_title="📚 Mukesh Sir's Online Exam 📚", page_icon="📝")
-st.sidebar.title("📚 Mitradnya Publication's Online Test Series 📚")
-st.sidebar.markdown("👨‍🏫 **Developed by: Mukesh Sir** 👨‍🏫")
+st.set_page_config(page_title="Mukesh Sir's Online Exam", page_icon="📝")
+st.sidebar.title("📚 Mitradnya Publication's Online Test Series")
+st.sidebar.markdown("👨‍🏫 **Developed by: Mukesh Sir (With Help of Mitradnya Publication's)**")
 
-# Initialize Session State for Test Locking
+# Initialize Session State
 if 'test_status' not in st.session_state:
-    st.session_state.test_status = 'not_started' # Options: 'not_started', 'in_progress', 'submitted'
+    st.session_state.test_status = 'not_started' 
 
 if df is not None:
-    # Disable sidebar selection if test is active to prevent cheating/changing chapters
     sidebar_disabled = st.session_state.test_status != 'not_started'
     
     chapters = df['No'].unique()
@@ -78,7 +81,6 @@ if df is not None:
     
     st.sidebar.markdown("---")
     
-    # 20-20 Question Chunks
     chunk_size = 20
     test_parts = []
     for i in range(0, total_q, chunk_size):
@@ -91,30 +93,50 @@ if df is not None:
     end_idx = start_idx + chunk_size
     current_quiz_df = chapter_questions.iloc[start_idx:end_idx]
     
-    st.title("📚 Mukesh Sir's Online Examination Portal 📚")
+    st.title("📚 Mukesh Sir's Online Examination Portal")
     st.subheader(f"Topic: {selected_chapter}")
     st.write(f"**{selected_part} (20 Marks / 20 Minutes)**")
     
-    # --- Student Information (Locks when test starts) ---
     if st.session_state.test_status == 'not_started':
-        st.info("⚠️ Instruction: Please fill in your details first and click 'Start Test'. The timer will begin immediately.")
+        st.info("⚠️ Instruction: Please enter your correct details and the Exam PIN provided by Mukesh Sir.")
         
-    student_name = st.text_input("👤 Full Name:", disabled=sidebar_disabled)
+    student_name = st.text_input("👤 Full Name (e.g., Rahul Patil):", disabled=sidebar_disabled)
     student_div = st.text_input("🏫 Division (A/B/C):", disabled=sidebar_disabled)
-    student_roll = st.text_input("🔢 Roll No:", disabled=sidebar_disabled)
-    student_email = st.text_input("📧 Email ID:", disabled=sidebar_disabled)
+    student_roll = st.text_input("🔢 Roll No (Numbers Only):", disabled=sidebar_disabled)
+    student_email = st.text_input("📧 Email ID (For Result):", disabled=sidebar_disabled)
+    
+    # नवीन: Exam PIN फिल्ड
+    if st.session_state.test_status == 'not_started':
+        exam_pin_input = st.text_input("🔑 Exam PIN (Secret Password):", type="password")
+    
     st.markdown("---")
     
-    # =======================================================
+
+   # =======================================================
     # STATE 1: Test Not Started
     # =======================================================
     if st.session_state.test_status == 'not_started':
         if st.button("🟢 Start Test"):
-            if student_name and student_div and student_roll:
-                st.session_state.test_status = 'in_progress'
-                st.rerun() # Reloads page to lock inputs and show questions
+            # --- Strict Validations ---
+            email_pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+$"
+            is_valid_email = re.match(email_pattern, student_email)
+            is_valid_roll = student_roll.isdigit()
+            
+            # --- फेक ईमेल डोमेन चेक (फक्त gmail किंवा yahoo अलाऊ करणे) ---
+            valid_domains = ["@gmail.com", "@yahoo.com", "@outlook.com", "@rediffmail,com"]
+            is_real_domain = any(student_email.lower().endswith(d) for d in valid_domains)
+            
+            if not student_name or not student_div or not student_roll or not student_email or not exam_pin_input:
+                st.warning("⚠️ Please fill in all the details, including the Exam PIN.")
+            elif not is_valid_roll:
+                st.error("❌ Invalid Roll No! Please enter numbers only (e.g., 15).")
+            elif not is_valid_email or not is_real_domain:
+                st.error("❌ Fake Email Detected! Please use a real valid email address (like @gmail.com or @yahoo.com).")
+            elif exam_pin_input != SECRET_EXAM_PIN:
+                st.error("❌ Incorrect Exam PIN! You cannot start the test without the correct password.")
             else:
-                st.warning("⚠️ Please fill in your Full Name, Division, and Roll No to start the test.")
+                st.session_state.test_status = 'in_progress'
+                st.rerun()
 
     # =======================================================
     # STATE 2: Test In Progress
@@ -122,7 +144,6 @@ if df is not None:
     elif st.session_state.test_status == 'in_progress':
         test_id = f"{selected_chapter}_{selected_part}".replace(" ", "_")
         
-        # English Timer (HTML/JS)
         timer_code = f"""
         <div style="background-color:#1B4F72; color:white; padding:10px; border-radius:8px; text-align:center; font-size:22px; font-weight:bold; font-family:sans-serif; border: 2px solid #AED6F1; box-shadow: 2px 2px 5px grey;">
             <span id="time">Loading Timer...</span>
@@ -132,7 +153,7 @@ if df is not None:
             var endTime = sessionStorage.getItem("examEndTime_" + testId);
             
             if (!endTime) {{
-                endTime = new Date().getTime() + 20 * 60 * 1000; // 20 minutes
+                endTime = new Date().getTime() + 20 * 60 * 1000; 
                 sessionStorage.setItem("examEndTime_" + testId, endTime);
             }}
             
@@ -157,11 +178,10 @@ if df is not None:
         
         user_answers = []
         for idx, (i, row) in enumerate(current_quiz_df.iterrows(), 1):
-            st.write(f"**Q: {idx}. {row['Question']}**")
+            st.write(f"**Q: {idx}.{row['Question']}**")
             
             raw_options = [str(row['Option A']), str(row['Option B']), str(row['Option C']), str(row['Option D'])]
             
-            # --- Duplicate Options Fix ---
             unique_options = []
             for opt in raw_options:
                 while opt in unique_options:
@@ -169,7 +189,6 @@ if df is not None:
                 unique_options.append(opt)
             options = unique_options
             
-            # --- Shuffle Options ---
             random.seed(i)
             random.shuffle(options)
             random.seed()
@@ -185,7 +204,6 @@ if df is not None:
                 correct_answers = current_quiz_df['Correct Answer (Full Text)'].astype(str).str.strip().values
                 results_list = []
                 
-                # Check answers
                 for idx, (i, row) in enumerate(current_quiz_df.iterrows()):
                     user_ans = str(user_answers[idx]).strip()
                     correct_ans = str(correct_answers[idx]).strip()
@@ -201,7 +219,6 @@ if df is not None:
                     detailed_report_text += f"Q: {row['Question']}\nYour Ans: {user_ans}\nStatus: {status}\n\n"
                     results_list.append({'q': row['Question'], 'user_ans': user_ans, 'correct_ans': correct_ans, 'is_correct': is_correct})
                 
-                # Save Data processing logic safely
                 with st.spinner("Saving data to Excel..."):
                     GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzucsekDDlyax6P8ZUUZgSWYjX55P4n6jRKM6YzZe35wxQ0D5ldPLmTcYfkCMJOLlTV/exec"
                     safe_name = urllib.parse.quote(str(student_name))
@@ -218,14 +235,12 @@ if df is not None:
                     except Exception:
                         sheet_success = False
                 
-                # Send Emails
                 send_detailed_email(TEACHER_EMAIL, student_name, student_div, student_roll, score, len(current_quiz_df), selected_chapter, selected_part, detailed_report_text, True)
                 
                 email_sent = False
                 if student_email:
                     email_sent = send_detailed_email(student_email, student_name, student_div, student_roll, score, len(current_quiz_df), selected_chapter, selected_part, detailed_report_text, False)
                 
-                # Store results in session state to show on the next page securely
                 st.session_state.score = score
                 st.session_state.total_questions = len(current_quiz_df)
                 st.session_state.results_list = results_list
@@ -234,7 +249,7 @@ if df is not None:
                 st.session_state.student_email = student_email
                 
                 st.session_state.test_status = 'submitted'
-                st.rerun() # Move to Result Page
+                st.rerun() 
             else:
                 st.warning("⚠️ Please answer all questions before submitting.")
 
@@ -242,7 +257,6 @@ if df is not None:
     # STATE 3: Test Submitted (Results Page)
     # =======================================================
     elif st.session_state.test_status == 'submitted':
-        # Remove the timer token from browser
         test_id = f"{selected_chapter}_{selected_part}".replace(" ", "_")
         components.html(f"<script>sessionStorage.removeItem('examEndTime_{test_id}');</script>", height=0)
         
@@ -270,6 +284,5 @@ if df is not None:
             st.session_state.test_status = 'not_started'
             st.rerun()
 
-
-# --- Footer ---
+    # --- Footer ---
     st.markdown("<br><hr><p style='text-align: center; color: gray; font-size: 16px;'>Developed with ❤️ by <b>Mukesh Sir (9130103386)</b></p>", unsafe_allow_html=True)
