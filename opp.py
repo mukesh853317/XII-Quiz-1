@@ -270,7 +270,7 @@ if df is not None:
             st.success(f"📧 The detailed Answer Key has been sent securely to your email: {st.session_state.student_email}")
             
         st.markdown("---")
-        st.warning("🔒 **Strict Security Protocol:** To prevent cheating, the detailed answer key is not displayed on the screen. Please check your registered email inbox to view your correct/wrong answers.")
+        st.warning("🔒 **Strict Security Protocol:** Please check your registered email inbox to view your detailed answers.")
         st.markdown("---")
         
         if st.button("🔄 Take Another Test"):
