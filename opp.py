@@ -62,9 +62,9 @@ def send_detailed_email(receiver_email, student_name, div, roll, score, total, c
 # -----------------------------------------------------
 # 2. Website Interface & Session State Initialization
 # -----------------------------------------------------
-st.set_page_config(page_title="Mukesh Sir's Online Exam", page_icon="📝")
-st.sidebar.title("📚 Mitradnya Publication's Online Test Series")
-st.sidebar.markdown("👨‍🏫 **Developed by: Mukesh Sir (With Help of Mitradnya Publication's)**")
+st.set_page_config(page_title="📚 Mukesh Sir's Online Exam 📚", page_icon="📝")
+st.sidebar.title("📚 Mitradnya Publication's Online Test Series 📚")
+st.sidebar.markdown("👨‍🏫 **Developed by: Mukesh Sir (With Help of Mitradnya Publication's)** 👨‍🏫")
 
 # Initialize Session State
 if 'test_status' not in st.session_state:
