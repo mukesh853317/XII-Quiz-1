@@ -6,7 +6,7 @@ import urllib.parse
 from email.mime.text import MIMEText
 import random
 import streamlit.components.v1 as components
-import re  # Email तपासण्यासाठी
+import re
 
 # -----------------------------------------------------
 # 1. Mitradnya Publication - Setup
@@ -19,7 +19,7 @@ except:
 
 TEACHER_NAME = "Mukesh Sir"
 
-# === येथे तुमचा परीक्षेचा सिक्रेट पासवर्ड सेट करा ===
+# === Exam PIN ===
 SECRET_EXAM_PIN = "MIT2026" 
 
 @st.cache_data
@@ -66,7 +66,6 @@ st.set_page_config(page_title="📚 Mukesh Sir's Online Exam 📚", page_icon="�
 st.sidebar.title("📚 Mitradnya Publication's Online Test Series 📚")
 st.sidebar.markdown("👨‍🏫 **Developed by: Mukesh Sir (With Help of Mitradnya Publication's)** 👨‍🏫")
 
-# Initialize Session State
 if 'test_status' not in st.session_state:
     st.session_state.test_status = 'not_started' 
 
@@ -105,24 +104,17 @@ if df is not None:
     student_roll = st.text_input("🔢 Roll No (Numbers Only):", disabled=sidebar_disabled)
     student_email = st.text_input("📧 Email ID (For Result):", disabled=sidebar_disabled)
     
-    # नवीन: Exam PIN फिल्ड
     if st.session_state.test_status == 'not_started':
         exam_pin_input = st.text_input("🔑 Exam PIN (Secret Password):", type="password")
     
     st.markdown("---")
-    
 
-   # =======================================================
-    # STATE 1: Test Not Started
-    # =======================================================
     if st.session_state.test_status == 'not_started':
         if st.button("🟢 Start Test"):
-            # --- Strict Validations ---
             email_pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+$"
             is_valid_email = re.match(email_pattern, student_email)
             is_valid_roll = student_roll.isdigit()
             
-            # --- फेक ईमेल डोमेन चेक (फक्त gmail किंवा yahoo अलाऊ करणे) ---
             valid_domains = ["@gmail.com", "@yahoo.com", "@outlook.com", "@rediffmail.com"]
             is_real_domain = any(student_email.lower().endswith(d) for d in valid_domains)
             
@@ -138,9 +130,6 @@ if df is not None:
                 st.session_state.test_status = 'in_progress'
                 st.rerun()
 
-    # =======================================================
-    # STATE 2: Test In Progress
-    # =======================================================
     elif st.session_state.test_status == 'in_progress':
         test_id = f"{selected_chapter}_{selected_part}".replace(" ", "_")
         
@@ -181,7 +170,6 @@ if df is not None:
             st.write(f"**Q: {idx}. {row['Question']}**")
             
             raw_options = [str(row['Option A']), str(row['Option B']), str(row['Option C']), str(row['Option D'])]
-            
             unique_options = []
             for opt in raw_options:
                 while opt in unique_options:
@@ -220,7 +208,10 @@ if df is not None:
                     results_list.append({'q': row['Question'], 'user_ans': user_ans, 'correct_ans': correct_ans, 'is_correct': is_correct})
                 
                 with st.spinner("Saving data to Excel..."):
-                    GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycby2Gp3N7-UWio1lL6YMl2upK1xULqtGTv9uH0SoKKiuO5nSamvdbwuA0dzshlG8fzq_/exec"
+                    
+                    # ⚠️ महत्वाची सूचना: 'YOUR_NEW_LINK_HERE' च्या जागी तुम्ही स्टेप 2 मध्ये काढलेली नवीन लिंक टाका.
+                    GOOGLE_SHEET_URL = "YOUR_NEW_LINK_HERE"
+                    
                     safe_name = urllib.parse.quote(str(student_name))
                     safe_div = urllib.parse.quote(str(student_div))
                     safe_roll = urllib.parse.quote(str(student_roll))
@@ -228,7 +219,8 @@ if df is not None:
                     safe_score = urllib.parse.quote(str(score))
                     safe_email = urllib.parse.quote(str(student_email))  # <-- ईमेल ऍड केला
                     
-                    final_url = f"{GOOGLE_SHEET_URL}?name={safe_name}&div={safe_div}&roll={safe_roll}&test={safe_test}&score={safe_score}"
+                    # ईमेल लिंक मध्ये जोडला 
+                    final_url = f"{GOOGLE_SHEET_URL}?name={safe_name}&div={safe_div}&roll={safe_roll}&test={safe_test}&score={safe_score}&email={safe_email}"
                     
                     try:
                         res = requests.get(final_url)
@@ -244,7 +236,6 @@ if df is not None:
                 
                 st.session_state.score = score
                 st.session_state.total_questions = len(current_quiz_df)
-                st.session_state.results_list = results_list
                 st.session_state.sheet_success = sheet_success
                 st.session_state.email_sent = email_sent
                 st.session_state.student_email = student_email
@@ -254,14 +245,10 @@ if df is not None:
             else:
                 st.warning("⚠️ Please answer all questions before submitting.")
 
-    # =======================================================
-    # STATE 3: Test Submitted (Results Page)
-    # =======================================================
     elif st.session_state.test_status == 'submitted':
         test_id = f"{selected_chapter}_{selected_part}".replace(" ", "_")
         components.html(f"<script>sessionStorage.removeItem('examEndTime_{test_id}');</script>", height=0)
         
-        # फक्त स्कोर दाखवणे 
         st.success(f"🎉 Final Score: {st.session_state.score} / {st.session_state.total_questions}")
         
         if st.session_state.sheet_success:
@@ -271,12 +258,11 @@ if df is not None:
             st.success(f"📧 The detailed Answer Key has been sent securely to your email: {st.session_state.student_email}")
             
         st.markdown("---")
-        st.warning("🔒 **Strict Security Protocol:** Please check your registered email inbox to view your detailed answers.")
+        st.warning("🔒 **Strict Security Protocol:** To prevent cheating, the detailed answer key is not displayed on the screen. Please check your registered email inbox to view your correct/wrong answers.")
         st.markdown("---")
         
         if st.button("🔄 Take Another Test"):
             st.session_state.test_status = 'not_started'
             st.rerun()
 
-    # --- Footer ---
     st.markdown("<br><hr><p style='text-align: center; color: gray; font-size: 16px;'>Developed with ❤️ by <b>Mukesh Sir (9130103386)</b></p>", unsafe_allow_html=True)
