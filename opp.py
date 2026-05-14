@@ -60,7 +60,8 @@ def send_detailed_email(receiver_email, student_name, div, roll, score, total, c
 # -----------------------------------------------------
 st.set_page_config(page_title="📚 Mukesh Sir's Online Exam 📚", page_icon="📝")
 st.sidebar.title("📚 Mitradnya Publication's Online Test Series 📚")
-st.sidebar.markdown("👨‍🏫 **Developed by: Mukesh Sir (9130103386)**")
+st.sidebar.markdown("---")
+st.sidebar.info("Developed by Mukesh Sir (9130103386)")
 
 # Initialize Session State for Test Locking
 if 'test_status' not in st.session_state:
