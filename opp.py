@@ -67,22 +67,23 @@ st.set_page_config(page_title="📚 Mukesh Sir's Online Exam 📚", page_icon="�
 # --- CUSTOM CSS (Dark/Light Mode Compatible) ---
 st.markdown("""
     <style>
-    /* मुख्य टायटल (थीमच्या कलरनुसार बदलेल) */
-    h1 {
-        color: var(--primary-color);
-        text-align: center;
-        font-family: 'Arial Black', sans-serif;
+    .stApp { background-color: #121212; color: #E0E0E0; }
+    h1 { color: #F1C40F; text-align: center; font-family: 'Arial Black', sans-serif; }
+    div.stRadio > div { 
+        background-color: #1E1E1E; 
+        color: #FFFFFF;
+        padding: 20px; 
+        border-radius: 12px; 
+        border-left: 6px solid #F1C40F; 
+        border: 1px solid #333333;
+        box-shadow: 2px 4px 10px rgba(0,0,0,0.5); 
+        margin-bottom: 15px; 
     }
-    /* प्रश्नांसाठी कार्ड लेआऊट (डार्क/लाईट मोडनुसार आपोआप रंग बदलेल) */
-    div.stRadio > div {
-        background-color: var(--secondary-background-color); 
-        color: var(--text-color);
-        padding: 20px;
-        border-radius: 12px;
-        border-left: 6px solid var(--primary-color);
-        box-shadow: 2px 4px 10px rgba(0,0,0,0.1);
-        margin-bottom: 15px;
+    div.stButton > button { 
+        background-color: #F1C40F; color: #000000; font-size: 18px; 
+        font-weight: bold; border-radius: 8px; width: 100%; 
     }
+    div.stButton > button:hover { background-color: #D4AC0D; color: #000000; }
     </style>
     """, unsafe_allow_html=True)
 # -------------------------------------------
