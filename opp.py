@@ -67,23 +67,21 @@ st.set_page_config(page_title="📚 Mukesh Sir's Online Exam 📚", page_icon="�
 # --- CUSTOM CSS (Dark/Light Mode Compatible) ---
 st.markdown("""
     <style>
-    .stApp { background-color: #121212; color: #E0E0E0; }
-    h1 { color: #F1C40F; text-align: center; font-family: 'Arial Black', sans-serif; }
+    .stApp { background-color: #EAF2F8; }
+    h1 { color: #154360; text-align: center; font-family: 'Arial Black', sans-serif; }
     div.stRadio > div { 
-        background-color: #1E1E1E; 
-        color: #FFFFFF;
+        background-color: #ffffff; 
         padding: 20px; 
         border-radius: 12px; 
-        border-left: 6px solid #F1C40F; 
-        border: 1px solid #333333;
-        box-shadow: 2px 4px 10px rgba(0,0,0,0.5); 
+        border-left: 6px solid #2980B9; 
+        box-shadow: 2px 4px 10px rgba(0,0,0,0.05); 
         margin-bottom: 15px; 
     }
     div.stButton > button { 
-        background-color: #F1C40F; color: #000000; font-size: 18px; 
+        background-color: #2980B9; color: white; font-size: 18px; 
         font-weight: bold; border-radius: 8px; width: 100%; 
     }
-    div.stButton > button:hover { background-color: #D4AC0D; color: #000000; }
+    div.stButton > button:hover { background-color: #1A5276; color: white; }
     </style>
     """, unsafe_allow_html=True)
 # -------------------------------------------
